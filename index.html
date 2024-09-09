@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kompres JPG Online - Cara Mudah Mengompres Gambar JPG</title>
+    <meta name="description" content="Kompres JPG online gratis. Cara mudah dan cepat untuk mengompres gambar JPG tanpa mengurangi kualitas. Hemat ruang penyimpanan sekarang!">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #file-input {
+            display: none;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #download-link {
+            display: none;
+            margin-top: 10px;
+        }
+        #quality-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kompres JPG Online</h1>
+        <p>Selamat datang di layanan kompres JPG online kami. Dengan tool ini, Anda dapat dengan mudah mengompres gambar JPG tanpa mengurangi kualitas secara signifikan.</p>
+        <div class="upload-area">
+            <p>Klik tombol di bawah atau seret gambar JPG Anda ke sini</p>
+            <input type="file" id="file-input" accept=".jpg,.jpeg">
+            <label for="file-input" class="btn">Pilih File JPG</label>
+        </div>
+        <div>
+            <label for="quality-slider">Kualitas Kompresi: <span id="quality-value">90%</span></label>
+            <input type="range" id="quality-slider" min="1" max="100" value="90">
+        </div>
+        <div id="result"></div>
+        <a id="download-link" class="btn" download="compressed_image.jpg">Unduh Gambar Terkompresi</a>
+        <h2>Mengapa Harus Mengompres JPG?</h2>
+        <ul>
+            <li>Hemat ruang penyimpanan</li>
+            <li>Mempercepat waktu loading website</li>
+            <li>Mengoptimalkan gambar untuk media sosial</li>
+            <li>Mengurangi penggunaan data saat mengunggah atau mengunduh</li>
+        </ul>
+        <h2>Cara Menggunakan Kompres JPG Online</h2>
+        <ol>
+            <li>Klik tombol "Pilih File JPG" atau seret gambar ke area yang ditentukan</li>
+            <li>Atur tingkat kualitas kompresi menggunakan slider</li>
+            <li>Tunggu proses kompresi selesai</li>
+            <li>Unduh gambar JPG yang telah dikompresi</li>
+        </ol>
+        <p>Dengan menggunakan layanan kompres JPG online kami, Anda dapat dengan mudah mengoptimalkan gambar Anda tanpa perlu menginstal software tambahan. Cobalah sekarang dan rasakan manfaatnya!</p>
+    </div>
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const result = document.getElementById('result');
+        const downloadLink = document.getElementById('download-link');
+        const qualitySlider = document.getElementById('quality-slider');
+        const qualityValue = document.getElementById('quality-value');
+
+        fileInput.addEventListener('change', handleImageUpload);
+        qualitySlider.addEventListener('input', updateQualityValue);
+
+        function updateQualityValue() {
+            qualityValue.textContent = qualitySlider.value + '%';
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    compressImage(event.target.result, qualitySlider.value / 100);
+                }
+                reader.readAsDataURL(file);
+            } else {
+                result.textContent = 'Mohon pilih file gambar yang valid.';
+            }
+        }
+
+        function compressImage(src, quality) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Menghitung dimensi baru dengan mempertahankan aspek rasio
+                const maxWidth = 1920; // Maksimum lebar
+                const maxHeight = 1080; // Maksimum tinggi
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(
+                    (blob) => {
+                        const compressedImageUrl = URL.createObjectURL(blob);
+                        downloadLink.href = compressedImageUrl;
+                        downloadLink.style.display = 'inline-block';
+                        result.innerHTML = `
+                            <p>Kompresi berhasil!</p>
+                            <p>Ukuran file asli: ${(img.src.length / 1024).toFixed(2)} KB</p>
+                            <p>Ukuran file terkompresi: ${(blob.size / 1024).toFixed(2)} KB</p>
+                        `;
+                    },
+                    'image/jpeg',
+                    quality
+                );
+            };
+            img.src = src;
+        }
+    </script>
+</body>
+</html>
